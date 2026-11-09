@@ -1,0 +1,24 @@
+# Анализ данных и классические модели
+numpy
+pandas
+scikit-learn
+scipy
+matplotlib
+seaborn
+umap-learn
+jupyter
+
+# Текст (SMS Spam): аугментация и оценка
+nltk
+transformers
+sentencepiece
+
+# Аудио (Clotho): загрузка, аугментация, обучение
+librosa
+soundfile
+audiomentations
+torch
+torchaudio
+
+# Разметку делаем в Label Studio, его ставим в отдельное окружение:
+#   pip install label-studio

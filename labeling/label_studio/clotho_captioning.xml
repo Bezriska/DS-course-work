@@ -1,0 +1,43 @@
+<!--
+  Label Studio: разметка новых аудиозаписей для Clotho (см. docs/codebook_clotho.md).
+  Импорт задач: JSON с полем "audio" (URL или путь к файлу в хранилище Label Studio)
+  и, опционально, "sound_id".
+-->
+<View>
+  <Header value="Прослушайте запись (можно несколько раз) и заполните поля по codebook"/>
+  <Audio name="audio" value="$audio"/>
+
+  <Header value="Подпись 1: английский, 8–20 слов, только то, что слышно" size="5"/>
+  <TextArea name="caption_1" toName="audio" rows="2" editable="true" maxSubmissions="1" required="true"/>
+
+  <Header value="Подпись 2: другая формулировка" size="5"/>
+  <TextArea name="caption_2" toName="audio" rows="2" editable="true" maxSubmissions="1" required="true"/>
+
+  <Header value="Основной источник звука" size="5"/>
+  <Choices name="main_source" toName="audio" choice="single" showInline="true" required="true">
+    <Choice value="nature"/>
+    <Choice value="animals"/>
+    <Choice value="human"/>
+    <Choice value="vehicles"/>
+    <Choice value="mechanical"/>
+    <Choice value="domestic"/>
+    <Choice value="music"/>
+    <Choice value="other"/>
+  </Choices>
+
+  <Header value="Где записано" size="5"/>
+  <Choices name="environment" toName="audio" choice="single" showInline="true" required="true">
+    <Choice value="indoor"/>
+    <Choice value="outdoor"/>
+    <Choice value="unclear"/>
+  </Choices>
+
+  <Header value="Есть разборчивая речь" size="5"/>
+  <Choices name="speech" toName="audio" choice="single" showInline="true" required="true">
+    <Choice value="yes"/>
+    <Choice value="no"/>
+  </Choices>
+
+  <TextArea name="comment" toName="audio" rows="2" editable="true"
+            placeholder="Комментарий (необязательно). Напишите exclude, если запись не проходит критерии включения"/>
+</View>

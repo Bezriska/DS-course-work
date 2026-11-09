@@ -1,0 +1,33 @@
+# Исходные датасеты — скачиваются отдельно
+data/*/raw/*
+!data/*/raw/.gitkeep
+
+# Тяжёлые аудиофайлы
+*.wav
+*.flac
+*.mp3
+*.ogg
+*.7z
+*.zip
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Модели и чекпойнты
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+
+# Label Studio (локальная база)
+label_studio_data/
+*.sqlite3
+
+# Системное
+.DS_Store
+.idea/
+.vscode/

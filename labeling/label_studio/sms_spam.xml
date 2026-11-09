@@ -1,0 +1,21 @@
+<!--
+  Label Studio: разметка SMS Spam (см. docs/codebook_sms_spam.md).
+  Импорт задач: CSV/JSON с полем "text" (опционально "id", "source_id").
+-->
+<View>
+  <Header value="Прочитайте сообщение и выберите класс по codebook"/>
+  <Text name="text" value="$text"/>
+
+  <Header value="Класс" size="5"/>
+  <Choices name="label" toName="text" choice="single" showInline="true" required="true">
+    <Choice value="ham" hotkey="1"/>
+    <Choice value="spam" hotkey="2"/>
+  </Choices>
+
+  <Choices name="unsure" toName="text" choice="multiple" showInline="true">
+    <Choice value="не уверен" hotkey="3"/>
+  </Choices>
+
+  <TextArea name="comment" toName="text" rows="2" editable="true"
+            placeholder="Комментарий (необязательно). Напишите exclude, если объект не проходит критерии включения"/>
+</View>
