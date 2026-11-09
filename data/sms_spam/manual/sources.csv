@@ -1,1 +1,3 @@
 source_id,name,url,access_date,license,description
+mendeley_smishing,"SMS Phishing Dataset for Machine Learning and Pattern Recognition (Mishra & Soni, 2022)",https://data.mendeley.com/datasets/f45bkkt8pr/1,2026-11-09,CC BY 4.0,"Реальные spam/smishing SMS, распознанные со скриншотов из интернета; берём метки spam и smishing"
+nus_sms_corpus,"NUS SMS Corpus, English, release 2015.03.09 (Chen & Kan, 2013)",https://github.com/kite1988/nus-sms-corpus,2026-11-09,свободно для исследований с цитированием Chen & Kan (2013); отдельная лицензия в репозитории не указана,"Реальные личные SMS, собранные у добровольцев NUS; берём как ham"

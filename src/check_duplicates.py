@@ -4,8 +4,9 @@ SMS Spam:
     python3 src/check_duplicates.py sms \
         --original data/sms_spam/raw/SMSSpamCollection \
         --new data/sms_spam/manual/messages.csv [--threshold 0.9]
-  Ищет точные совпадения (после нормализации) и почти-дубликаты
-  (похожесть по difflib >= threshold) — как с исходным датасетом, так и внутри новых данных.
+  Ищет точные совпадения (после нормализации), почти-дубликаты (похожесть по difflib
+  >= threshold) и обрезанные версии (>= 60 % словесных 3-грамм нового сообщения есть
+  в одном исходном). Проверяет и по исходному датасету, и внутри новых данных.
 
 Clotho:
     python3 src/check_duplicates.py clotho \
@@ -41,42 +42,87 @@ def read_csv(path: str) -> list[dict]:
         return list(csv.DictReader(f))
 
 
+def shingles(norm: str, n: int = 3) -> set[tuple[str, ...]]:
+    words = norm.split()
+    if len(words) < n:
+        return {tuple(words)} if words else set()
+    return {tuple(words[i:i + n]) for i in range(len(words) - n + 1)}
+
+
+class NearDupIndex:
+    """Индекс текстов для поиска дубликатов трёх видов.
+
+    * точная копия после нормализации;
+    * почти-копия: похожесть difflib >= ratio;
+    * вхождение: >= containment словесных 3-грамм нового текста встречаются в одном
+      из текстов индекса. Ловит обрезанные и дополненные версии одного сообщения.
+    """
+
+    def __init__(self, texts: list[str] = (), ratio: float = 0.9, containment: float = 0.6):
+        self.ratio, self.containment = ratio, containment
+        self.texts: list[str] = []
+        self.norm: list[str] = []
+        self.exact: dict[str, int] = {}
+        self.inv: dict[tuple, list[int]] = {}
+        for t in texts:
+            self.add(t)
+
+    def add(self, text: str) -> None:
+        n = normalize(text)
+        idx = len(self.texts)
+        self.texts.append(text)
+        self.norm.append(n)
+        self.exact.setdefault(n, idx)
+        for sh in shingles(n):
+            self.inv.setdefault(sh, []).append(idx)
+
+    def find(self, text: str) -> tuple[str, float, str] | None:
+        """Возвращает (вид, оценка, найденный текст) или None."""
+        n = normalize(text)
+        if n in self.exact:
+            return "точная копия", 1.0, self.texts[self.exact[n]]
+        own = shingles(n)
+        if own:
+            hits: dict[int, int] = {}
+            for sh in own:
+                for idx in self.inv.get(sh, ()):
+                    hits[idx] = hits.get(idx, 0) + 1
+            if hits:
+                idx, cnt = max(hits.items(), key=lambda kv: kv[1])
+                share = cnt / len(own)
+                if share >= self.containment:
+                    return "вхождение", share, self.texts[idx]
+        sm = difflib.SequenceMatcher(autojunk=False)
+        sm.set_seq2(n)
+        for idx, cand in enumerate(self.norm):
+            sm.set_seq1(cand)
+            if (sm.real_quick_ratio() >= self.ratio and sm.quick_ratio() >= self.ratio
+                    and sm.ratio() >= self.ratio):
+                return "почти-копия", sm.ratio(), self.texts[idx]
+        return None
+
+
 def check_sms(args: argparse.Namespace) -> int:
     original = read_sms_original(args.original)
     new_rows = read_csv(args.new)
-    orig_norm = [normalize(t) for t in original]
-    orig_set = set(orig_norm)
+    orig_index = NearDupIndex(original, ratio=args.threshold)
+    new_index = NearDupIndex(ratio=args.threshold)
     problems = 0
 
-    seen: dict[str, str] = {}
     for row in new_rows:
         rid, text = row.get("id", "?"), row.get("text", "")
-        norm = normalize(text)
-        if not norm:
-            print(f"[пусто]       id={rid}")
+        if not normalize(text):
+            print(f"[пусто] id={rid}")
             problems += 1
             continue
-        if norm in orig_set:
-            print(f"[в исходном]  id={rid}: {text[:80]!r}")
-            problems += 1
-        elif norm in seen:
-            print(f"[повтор]      id={rid} = id={seen[norm]}: {text[:80]!r}")
-            problems += 1
-        else:
-            best, best_text = 0.0, ""
-            sm = difflib.SequenceMatcher(autojunk=False)
-            sm.set_seq2(norm)
-            for cand, cand_text in zip(orig_norm, original):
-                sm.set_seq1(cand)
-                if sm.real_quick_ratio() < args.threshold or sm.quick_ratio() < args.threshold:
-                    continue
-                r = sm.ratio()
-                if r > best:
-                    best, best_text = r, cand_text
-            if best >= args.threshold:
-                print(f"[похоже {best:.2f}] id={rid}: {text[:60]!r}\n               ~ {best_text[:60]!r}")
+        for where, index in (("в исходном", orig_index), ("среди новых", new_index)):
+            hit = index.find(text)
+            if hit:
+                kind, score, other = hit
+                print(f"[{where}: {kind} {score:.2f}] id={rid}: {text[:60]!r}\n    ~ {other[:60]!r}")
                 problems += 1
-        seen.setdefault(norm, rid)
+                break
+        new_index.add(text)
 
     print(f"\nПроверено новых: {len(new_rows)}, исходных: {len(original)}, проблем: {problems}")
     return 1 if problems else 0

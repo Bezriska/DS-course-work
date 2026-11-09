@@ -1,0 +1,16 @@
+# Ссылки на страницы звуков Freesound — по одной в строке, например:
+#   https://freesound.org/people/<автор>/sounds/<id>/
+#
+# Как выбирать (подробно — docs/codebook_clotho.md, раздел 4):
+#   * поиск на freesound.org с фильтрами: License = Creative Commons 0 или Attribution,
+#     Duration = 15–30 s;
+#   * реальные звуковые сцены: не музыка, не синтезированные эффекты, речь не главное;
+#   * раскладка по категориям, чтобы покрыть разные источники звука (25 на участника):
+#       nature: rain, thunderstorm, wind, sea waves, river/stream        — 5
+#       animals: birds, dog, insects at night, farm animals             — 4
+#       human: footsteps, crowd/market, applause, children playground   — 4
+#       vehicles: traffic, train, airplane, bicycle/motorbike           — 4
+#       mechanical: construction, drill/saw, machine hum                — 4
+#       domestic: kitchen/dishes, door, typing, washing machine         — 4
+#   * после заполнения: python3 src/fetch_freesound.py --collected-by <имя> --prefix <буква>
+#     Скрипт сам отсеет звуки из Clotho, неподходящие лицензии и длительность.
