@@ -14,3 +14,35 @@
 #       domestic: kitchen/dishes, door, typing, washing machine         — 4
 #   * после заполнения: python3 src/fetch_freesound.py --collected-by <имя> --prefix <буква>
 #     Скрипт сам отсеет звуки из Clotho, неподходящие лицензии и длительность.
+
+# nature
+https://freesound.org/people/kezpunk/sounds/563080/
+https://freesound.org/people/edschaefer/sounds/367812/
+https://freesound.org/people/Dnab55/sounds/127862/
+https://freesound.org/people/OK_Selekta/sounds/630599/
+https://freesound.org/people/manysounds/sounds/512085/
+# animals
+https://freesound.org/people/TiesWijnen/sounds/364893/
+https://freesound.org/people/Caitlin_100/sounds/384409/
+https://freesound.org/people/yanzhang1/sounds/712578/
+https://freesound.org/people/qubodup/sounds/183992/
+# human
+https://freesound.org/people/Stefan021/sounds/798870/
+https://freesound.org/people/primisteka/sounds/462975/
+https://freesound.org/people/cognito%20perceptu/sounds/84743/
+https://freesound.org/people/Anilan/sounds/840937/
+# vehicles
+https://freesound.org/people/KikeVilaplana/sounds/510830/
+https://freesound.org/people/mrrap4food/sounds/619079/
+https://freesound.org/people/csaszi/sounds/339038/
+https://freesound.org/people/rsellick/sounds/545520/
+# mechanical
+https://freesound.org/people/Breviceps/sounds/464647/
+https://freesound.org/people/Pagey1969/sounds/566045/
+https://freesound.org/people/Primitv094/sounds/784912/
+https://freesound.org/people/jerry.berumen/sounds/827432/
+# domestic
+https://freesound.org/people/somatik7/sounds/608723/
+https://freesound.org/people/lyndseymel/sounds/241351/
+https://freesound.org/people/MilliiStewart15/sounds/566001/
+https://freesound.org/people/Tom_Kaszuba/sounds/658072/
