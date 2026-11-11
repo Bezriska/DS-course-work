@@ -93,6 +93,18 @@ python3 src/fetch_freesound.py --collected-by maxim --prefix m
 
 Аудиофайлы в git не хранятся. Любой участник восстанавливает их тем же скриптом из `urls.txt`.
 
+Перед разметкой преобразуем MP3 в WAV (моно, 44 100 Гц, PCM 16 бит):
+
+```bash
+python3 -m pip install numpy scipy soundfile
+python3 src/mp3_to_wav.py
+```
+
+WAV сохраняются рядом с MP3 в `data/clotho/manual/audio/`. Уже существующие WAV
+скрипт пропускает. В Label Studio импортируем только `.wav`, чтобы не создавать
+две задачи на одну запись. Другую папку для результатов можно указать через
+`--output-dir data/clotho/manual/audio_wav`.
+
 ## Как работаем с разметкой
 
 1. Ставим Label Studio: `pip install label-studio`, запуск — `label-studio start`.
