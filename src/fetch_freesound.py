@@ -13,10 +13,12 @@
 их можно скачать вручную под тем же именем, но в .wav.
 
 Результат — data/clotho/manual/sources.csv. Записи, не прошедшие проверки,
-помечаются в столбце status и не скачиваются.
+помечаются в столбце status и не скачиваются. Строки других участников (другой
+--collected-by) остаются в реестре.
 
-Пример:
-    python3 src/fetch_freesound.py --collected-by maxim --prefix m
+Примеры:
+    python3 src/fetch_freesound.py --collected-by maxim --prefix m --urls data/clotho/manual/urls_maxim.txt
+    python3 src/fetch_freesound.py --download-only   # скачать все записи из реестра для разметки
 """
 
 from __future__ import annotations
@@ -99,7 +101,11 @@ def main() -> int:
     p.add_argument("--min-dur", type=float, default=15.0)
     p.add_argument("--max-dur", type=float, default=30.0)
     p.add_argument("--delay", type=float, default=1.0, help="пауза между запросами, с")
+    p.add_argument("--download-only", action="store_true",
+                   help="только скачать аудио для записей из sources.csv (например, чужих — для разметки)")
     args = p.parse_args()
+    if args.download_only:
+        return download_only(args.delay)
 
     with open(args.urls, encoding="utf-8") as f:
         urls = [ln.strip() for ln in f if ln.strip() and not ln.lstrip().startswith("#")]
@@ -158,13 +164,48 @@ def main() -> int:
         print(f"{row['id']} {sid:>7} {row['status'][:70]}")
         time.sleep(args.delay)
 
+    # Строки других участников сохраняем, свои (по collected_by) заменяем новыми.
     out_path = os.path.join(MANUAL, "sources.csv")
+    others = [r for r in read_registry(out_path) if r.get("collected_by") != args.collected_by]
     with open(out_path, "w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=FIELDS)
+        w = csv.DictWriter(f, fieldnames=FIELDS, extrasaction="ignore")
         w.writeheader()
-        w.writerows(rows)
-    print(f"\nГотово: {n_ok} из {len(urls)} записей подходят. Реестр: {out_path}")
+        w.writerows(others + rows)
+    print(f"\nГотово: {n_ok} из {len(urls)} записей подходят. Реестр: {out_path} "
+          f"(строк других участников сохранено: {len(others)})")
     return 0
+
+
+def read_registry(path: str) -> list[dict]:
+    if not os.path.exists(path):
+        return []
+    with open(path, encoding="utf-8", newline="") as f:
+        return list(csv.DictReader(f))
+
+
+def download_only(delay: float) -> int:
+    """Скачать аудио для всех строк реестра со status=ok, не меняя сам реестр."""
+    rows = [r for r in read_registry(os.path.join(MANUAL, "sources.csv")) if r.get("status") == "ok"]
+    audio_dir = os.path.join(MANUAL, "audio")
+    os.makedirs(audio_dir, exist_ok=True)
+    done = 0
+    for r in rows:
+        dest = os.path.join(audio_dir, r["file_name"])
+        if os.path.exists(dest):
+            done += 1
+            continue
+        try:
+            info = parse_page(get(r["url"]).decode("utf-8", errors="replace"), r["url"])
+            time.sleep(delay)
+            with open(dest, "wb") as out:
+                out.write(get(info["preview"]))
+            done += 1
+            print(f"{r['id']} {r['file_name']} скачан")
+        except Exception as e:  # noqa: BLE001
+            print(f"{r['id']} {r['file_name']} ошибка: {e}")
+        time.sleep(delay)
+    print(f"\nВ папке {audio_dir}: {done} из {len(rows)} файлов реестра")
+    return 0 if done == len(rows) else 1
 
 
 if __name__ == "__main__":

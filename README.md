@@ -91,7 +91,14 @@ python3 src/make_ls_tasks.py data/sms_spam/manual/messages.csv labeling/tasks/sm
 python3 src/fetch_freesound.py --collected-by maxim --prefix m
 ```
 
-Аудиофайлы в git не хранятся. Любой участник восстанавливает их тем же скриптом из `urls.txt`.
+Строки других участников в реестре сохраняются: скрипт заменяет только строки с тем же `--collected-by`.
+
+Аудиофайлы в git не хранятся. Чтобы скачать все записи из реестра (например, для второй разметки),
+не меняя сам реестр:
+
+```bash
+python3 src/fetch_freesound.py --download-only
+```
 
 Перед разметкой преобразуем MP3 в WAV (моно, 44 100 Гц, PCM 16 бит):
 
@@ -113,16 +120,22 @@ WAV сохраняются рядом с MP3 в `data/clotho/manual/audio/`. У�
    для SMS — файл `labeling/tasks/sms_spam_tasks.json`,
    для Clotho — сами файлы из `data/clotho/manual/audio/` (Import → Upload Files).
 3. Каждый аннотатор размечает **все** объекты под своим аккаунтом и не видит чужую разметку.
-4. Экспортируем проект в JSON и кладём в `labeling/annotations/`.
-5. Считаем согласие:
+4. Экспортируем проект в JSON (Export → JSON) и кладём в `labeling/annotations/`
+   под именем `<датасет>_<аннотатор>.json`, например `sms_maxim.json`.
+5. Считаем согласие. У каждого своя установка Label Studio, поэтому передаём два файла.
+   Задачи сопоставляются по `msg_id` (SMS) и по `fs_<sound_id>` в имени файла (аудио),
+   так что MP3 и WAV одной записи считаются одним объектом:
 
 ```bash
-python3 src/agreement.py labeling/annotations/sms_spam.json --choices label
-python3 src/agreement.py labeling/annotations/clotho.json --choices main_source environment speech --texts caption_1 caption_2
+python3 src/agreement.py --a labeling/annotations/sms_maxim.json --b labeling/annotations/sms_vitaliy.json \
+    --choices label --out labeling/annotations/sms_merged.csv
+python3 src/agreement.py --a labeling/annotations/clotho_maxim.json --b labeling/annotations/clotho_vitaliy.json \
+    --choices main_source environment speech --texts caption_1 caption_2 --out labeling/annotations/clotho_merged.csv
 ```
 
 Label Studio сам записывает время работы над каждым объектом (`lead_time`).
-Скрипт выводит среднее и медиану по каждому аннотатору.
+Скрипт выводит среднее, медиану и сумму по каждому аннотатору. Объекты дольше 15 минут
+(вкладку забыли открытой) в среднее не входят.
 
 Перед разметкой проверяем, что собранного нет в исходных датасетах:
 
