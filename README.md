@@ -82,7 +82,7 @@ python3 src/make_ls_tasks.py data/sms_spam/manual/messages.csv labeling/tasks/sm
 
 ### Clotho
 
-Звуки выбираются вручную на freesound.org: поиск сайта закрыт для роботов.
+Звуки выбираются вручную на freesound.org.
 Ссылки записываются в `data/clotho/manual/urls.txt`, там же подсказка по категориям.
 Затем скрипт скачивает превью, проверяет лицензию, длительность и отсутствие в Clotho,
 и заполняет `data/clotho/manual/sources.csv`:
@@ -132,6 +132,19 @@ python3 src/agreement.py --a labeling/annotations/sms_maxim.json --b labeling/an
 python3 src/agreement.py --a labeling/annotations/clotho_maxim.json --b labeling/annotations/clotho_vitaliy.json \
     --choices main_source environment speech --texts caption_1 caption_2 --out labeling/annotations/clotho_merged.csv
 ```
+
+6. Разбираем расхождения вдвоём и записываем решения в `labeling/annotations/sms_resolutions.csv`
+   (id, итоговая метка, правило codebook, комментарий). Затем собираем итоговые метки:
+
+```bash
+python3 src/finalize_labels.py
+```
+
+Результат — `data/sms_spam/manual/messages_labeled.csv`. Скрипт также печатает, насколько итоговые
+метки совпадают с меткой источника.
+
+**Итоги разметки SMS (17.11.2026):** 100 сообщений, согласие 94 %, Cohen's κ = 0,88,
+6 расхождений разобрано, codebook обновлён до версии 1.0.
 
 Label Studio сам записывает время работы над каждым объектом (`lead_time`).
 Скрипт выводит среднее, медиану и сумму по каждому аннотатору. Объекты дольше 15 минут
