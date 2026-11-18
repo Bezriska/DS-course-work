@@ -31,3 +31,6 @@ label_studio_data/
 .DS_Store
 .idea/
 .vscode/
+
+# Архивы для Google Диска
+dist/
