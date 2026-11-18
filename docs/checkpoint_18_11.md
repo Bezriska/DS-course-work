@@ -6,7 +6,7 @@
 | | Ссылка |
 |---|---|
 | Репозиторий (код и документация) | https://github.com/Bezriska/DS-course-work |
-| Данные с разметкой (Google Диск) | **[ссылка будет добавлена]** |
+| Данные с разметкой (Google Диск) | https://drive.google.com/file/d/1FCVoC2gmPIroDCEwu-mCHYaCOlCtLsDe/view?usp=share_link |
 | Журнал работ | https://docs.google.com/document/d/1eIuJSYfkGSIcNM9TyS7IGzjKW_ArdC39sK9XwC4R4hI/edit |
 
 ## Что требовалось к этой защите
@@ -112,7 +112,7 @@
 
 ## 5. Где лежат данные
 
-Датасеты с разметкой размещены на Google Диске: **[ссылка будет добавлена]**.
+Датасеты с разметкой размещены на Google Диске: https://drive.google.com/file/d/1FCVoC2gmPIroDCEwu-mCHYaCOlCtLsDe/view?usp=share_link.
 Архив `manual_enrichment_2026-11-18.zip`:
 
 ```
